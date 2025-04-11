@@ -1,39 +1,46 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import axios from "axios";
 
 function Home() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user"); // Default role is user
+  const [role, setRole] = useState("user");
   const [errorMessage, setErrorMessage] = useState("");
-  const [isLogin, setIsLogin] = useState(true); // Toggle between login and register form
+  const [isLogin, setIsLogin] = useState(true);
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/register", {
-        email,
+      // Using relative URL which will be proxied through Vite
+      const response = await axios.post("/api/auth/register", {
+        username,
         password,
-        role
+        role,
       });
-      alert('Registration successful!');
-      setEmail('');
-      setPassword('');
-      setRole('user');
+
+      console.log("Registration response:", response.data);
+      alert("Registration successful!");
+      setUsername("");
+      setPassword("");
+      setRole("user");
     } catch (error) {
-      setErrorMessage(error.response.data || "Registration failed");
+      console.error("Registration error:", error);
+      setErrorMessage(error.response?.data?.message || "Registration failed");
     }
   };
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password
+      // Using relative URL which will be proxied through Vite
+      const response = await axios.post("/api/auth/login", {
+        username,
+        password,
       });
+
       localStorage.setItem("token", response.data.token);
-      window.location.href = '/admin/dashboard'; // Redirect to admin dashboard after login
+      window.location.href = "/admin";
     } catch (error) {
-      setErrorMessage(error.response.data || "Login failed");
+      console.error("Login error:", error);
+      setErrorMessage(error.response?.data?.message || "Login failed");
     }
   };
 
@@ -41,25 +48,21 @@ function Home() {
     <div>
       <h1>{isLogin ? "Login" : "Register"}</h1>
 
-      <input 
-        type="email" 
-        placeholder="Email" 
-        value={email} 
-        onChange={(e) => setEmail(e.target.value)} 
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
       />
-      <input 
-        type="password" 
-        placeholder="Password" 
-        value={password} 
-        onChange={(e) => setPassword(e.target.value)} 
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
       />
-      
-      {/* Only show this input for registration form */}
+
       {!isLogin && (
-        <select 
-          value={role} 
-          onChange={(e) => setRole(e.target.value)}
-        >
+        <select value={role} onChange={(e) => setRole(e.target.value)}>
           <option value="user">User</option>
           <option value="admin">Admin</option>
         </select>
@@ -70,10 +73,11 @@ function Home() {
       </button>
 
       <p>{errorMessage}</p>
-      
-      {/* Toggle between login and register form */}
+
       <button onClick={() => setIsLogin(!isLogin)}>
-        {isLogin ? "Don't have an account? Register" : "Already have an account? Login"}
+        {isLogin
+          ? "Don't have an account? Register"
+          : "Already have an account? Login"}
       </button>
     </div>
   );
