@@ -1,12 +1,11 @@
-const express = require('express');
-const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
+const express = require("express");
+const { verifyToken, isAdmin } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Admin protected route
-router.get('/', verifyToken, isAdmin, (req, res) => {
-  // Issue: The route doesn't check if the user is authorized
-  res.send('Welcome to the Admin Panel');
+// Fix the route path to match what the frontend is requesting
+router.get("/dashboard", verifyToken, isAdmin, (req, res) => {
+  res.json({ role: req.user.role, content: "Confidential admin content." });
 });
 
 module.exports = router;
